@@ -4,13 +4,11 @@
     {
       "src": "main/wsgi.py",
       "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
-    },
-    {
-      "src": "build_files.sh",
-      "use": "@vercel/static-build",
       "config": {
-        "distDir": "staticfiles"
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.9",
+        "installCommand": "python3 -m ensurepip && python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt",
+        "buildCommand": "python3 manage.py migrate && python3 manage.py collectstatic --noinput"
       }
     }
   ],

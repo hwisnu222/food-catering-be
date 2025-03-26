@@ -1,3 +1,6 @@
-pip install -r requirements.txt
-python3.9 manage.py migrate
-python3.9 manage.py collectstatic --noinput
+#!/bin/bash
+
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python manage.py collectstatic --noinput
+python manage.py migrate

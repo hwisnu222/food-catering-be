@@ -1,6 +1,7 @@
 import graphene
 from .queries import CategoryTypes, MenuItemTypes
 from ..models import Category, MenuItem
+from django.core.exceptions import ObjectDoesNotExist
 
 # class type input
 class CategoryInput(graphene.InputObjectType):
@@ -10,7 +11,7 @@ class CategoryInput(graphene.InputObjectType):
 
 
 class MenuItemInput(graphene.InputObjectType):
-    category = graphene.Int()
+    category_id = graphene.ID()
     name = graphene.String()
     description = graphene.String()
     base_price = graphene.Decimal()
@@ -23,7 +24,6 @@ class CreateCategoryMutation(graphene.Mutation):
     class Arguments:
         data = CategoryInput(required=True)
 
-
     category = graphene.Field(CategoryTypes)
 
     @classmethod
@@ -32,19 +32,75 @@ class CreateCategoryMutation(graphene.Mutation):
         category.save()
 
         return CreateCategoryMutation(category=category)
+    
+class DeleteCategoryMutation(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID()
+    
+    category =graphene.Field(CategoryTypes)
+
+    @classmethod
+    def mutate(cls, root, info, id):
+        category = Category.objects.get(pk=id)
+        category.save()
+        return DeleteCategoryMutation(category=category)
 
 class CreateMenuItemMutation(graphene.Mutation):
     class Arguments:
         data = MenuItemInput(required=True)
 
 
-    category = graphene.Field(MenuItemTypes)
+    menuItem = graphene.Field(MenuItemTypes)
 
     @classmethod
     def mutate(cls, root, info, data):
-        menu_item = MenuItem(**data)
-        menu_item.save()
+        try:
+            category_instance = Category.objects.get(id=data.category_id)
+        except ObjectDoesNotExist:
+            raise Exception("category does not exist")
+        
+        data.category = category_instance
+        
+        menuItem = MenuItem(**data)
+        menuItem.save()
 
-        return CreateMenuItemMutation(menu_item=menu_item)
+        return CreateMenuItemMutation(menuItem=menuItem)
+    
+class DeleteMenuItemMutation(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID()
+    
+    # define type on delete
+    menuItem = graphene.Field(MenuItemTypes)
+
+    @classmethod
+    def mutate(cls, root, info, id):
+        try:
+            menuItem = MenuItem.objects.get(pk=id)
+            delete_menu = menuItem
+            menuItem.delete()
+
+            return DeleteMenuItemMutation(menuItem=delete_menu)
+        except MenuItem.DoesNotExist:
+            return DeleteMenuItemMutation(menuItem=None)
+
+
+class UpdateMenuItemMutation(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID()
+        data = MenuItemInput()
+
+    menuItem = graphene.Field(MenuItemTypes)
+    
+    @classmethod
+    def mutate(cls, root, info, id, data):
+        try:
+            MenuItem.objects.filter(pk=id).update(**data)
+            menuItem = MenuItem.objects.get(pk=id)
+
+            return UpdateMenuItemMutation(menuItem=menuItem)
+        except MenuItem.DoesNotExist:
+            return UpdateMenuItemMutation(menuItem=None)
+        
 
         
