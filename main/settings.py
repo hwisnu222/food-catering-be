@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-w*1ky!m8y@-mj4z*iroj@6n^7#o5-c#45zkn$f%q$yef4phx2q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -129,3 +129,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 GRAPHENE = {
     'SCHEMA': 'django_root.schema.schema'
 }
+
+
+WSGI_APPLICATION = 'api.wsgi.app'
