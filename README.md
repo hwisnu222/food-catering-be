@@ -28,6 +28,15 @@ docker compose up -d
 
 Then, access the application in your browser at [http://localhost:8000/graphql](http://localhost:8000/graphl).
 
+login admin
+
+access admin at [http://localhost:8000/admin](http://localhost:8000/admin)
+
+```bash
+username: admin
+pass: admin
+```
+
 ## Run the Frontend Project
 
 To run the frontend project alongside the backend, you also need to clone and run the frontend repository. Use the following commands:
