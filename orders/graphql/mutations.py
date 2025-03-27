@@ -26,10 +26,8 @@ class CreateOrderMutation(graphene.Mutation):
         except ObjectDoesNotExist:
             raise Exception("menu is not exist")
 
-        try:
-            data.menu_item = menu_item_instance
-            order = Order(**data)
+        data.menu_item = menu_item_instance
+        order = Order(**data)
+        order.save()
 
-            return CreateOrderMutation(order=order)
-        except Order.DoesNotExist:
-            return Order(order=None)
+        return CreateOrderMutation(order=order)
