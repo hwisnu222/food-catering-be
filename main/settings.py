@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'graphene_django',
     'menu',
     'orders',
-    'payments'
 ]
 
 MIDDLEWARE = [
@@ -141,6 +140,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://food-catering-fe.vercel.app"
 ]
 
 

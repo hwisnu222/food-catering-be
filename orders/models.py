@@ -1,6 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import User
 from menu.models import MenuItem
+import random
+import string
 
 # Create your models here.
 class Order(models.Model):
@@ -20,8 +21,11 @@ class Order(models.Model):
         (CANCELLED, 'Cancelled'),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-    order_date = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=30, null=True)
+    phone_number = models.CharField(max_length=13, null=True)
+    tracking_code = models.CharField(max_length=8, unique=True, blank=True, null=True)
+    menu_item = models.ForeignKey(MenuItem, on_delete=models.PROTECT, null=True)
+    order_date = models.DateTimeField(auto_now_add=True, null=True)
     delivery_date = models.DateTimeField()
     delivery_address = models.TextField()
     special_notes = models.TextField(blank=True)
@@ -30,30 +34,18 @@ class Order(models.Model):
         choices=STATUS_CHOICES,
         default=PENDING
     )
-    is_paid = models.BooleanField(default=False)
 
-    @property
-    def total_price(self):
-        items_total = sum(item.price for item in self.items.all())
-        return items_total + self.tax + self.delivery_fee
+    def save(self, *args, **kwargs):
+        print("pre save")
+        if not self.tracking_code:
+            print("save")
+            self.tracking_code = self.generate_random_code()
+            super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"Order #{self.id} - {self.user.email}"
 
-class OrderItem(models.Model):
-    order = models.ForeignKey(
-        Order,
-        related_name='items',
-        on_delete=models.CASCADE
-    )
-    menu_item = models.ForeignKey(MenuItem, on_delete=models.PROTECT)
-    quantity = models.PositiveIntegerField(default=1)
-    special_request = models.TextField(blank=True)
-
-    @property
-    def price(self):
-        addons_price = sum(addon.price for addon in self.selected_addons.all())
-        return (self.menu_item.base_price + addons_price) * self.quantity
+    def generate_random_code(self):
+        return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
     def __str__(self):
-        return f"{self.quantity}x {self.menu_item.name} (Order #{self.order.id})"
+        return f"Order #{self.id} - {self.name}"
+
